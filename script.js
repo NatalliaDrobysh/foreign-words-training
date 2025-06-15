@@ -71,14 +71,12 @@ buttonBack.addEventListener('click', function() {
 
 createStudyCard();
 
-
 let allCards = [];
 
 words.forEach(item => {
     allCards.push(item.word);
     allCards.push(item.translation);
 });
-
 
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0;  i--) {
@@ -114,7 +112,6 @@ function fillDictionary() {
 }
 
 fillDictionary();
-
 
 let clickCount = 0;
 let selectedWord = null;
