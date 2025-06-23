@@ -9,12 +9,15 @@ const usageExample = cardBack.querySelector('span');
 const buttonNext = document.querySelector('#next');
 const buttonBack = document.querySelector('#back');
 const numberCurrentWord = document.querySelector('#current-word');
+const totalWord = document.querySelector('#total-word');
 const buttonExam = document.querySelector('#exam');
 const studyCards = document.querySelector('.study-cards');
 const examCards = document.querySelector('#exam-cards');
 const studyMode = document.querySelector('#study-mode');
 const examMode = document.querySelector('#exam-mode');
-
+const wordsProgress = document.querySelector('#words-progress');
+const correctPercent = document.querySelector('#correct-percent');
+const examProgress = document.querySelector('#exam-progress');
 
 
 const words = [
@@ -47,6 +50,8 @@ function createStudyCard() {
     usageExample.textContent = currentWord.example;
 }
 
+let progressPercent = numberCurrentWord.textContent * 100 / totalWord.textContent;
+wordsProgress.value = progressPercent;
 
 buttonNext.addEventListener('click', function() {
     currentIndex = currentIndex + 1;
@@ -56,6 +61,9 @@ buttonNext.addEventListener('click', function() {
         buttonNext.disabled = true;
     }
    numberCurrentWord.textContent = currentIndex + 1;
+
+   progressPercent = numberCurrentWord.textContent * 100 / totalWord.textContent;
+   wordsProgress.value = progressPercent;
 
 })
 
@@ -67,18 +75,19 @@ buttonBack.addEventListener('click', function() {
         buttonBack.disabled = true;
     } 
     numberCurrentWord.textContent = currentIndex + 1;
+
+    progressPercent = numberCurrentWord.textContent * 100 / totalWord.textContent;
+    wordsProgress.value = progressPercent;
 })
 
 createStudyCard();
 
-
-let allCards = [];
+const allCards = [];
 
 words.forEach(item => {
     allCards.push(item.word);
     allCards.push(item.translation);
 });
-
 
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0;  i--) {
@@ -115,33 +124,55 @@ function fillDictionary() {
 
 fillDictionary();
 
-
 let clickCount = 0;
 let selectedWord = null;
+let examPercent = 0;
 
 examCards.addEventListener('click', function(event) {
-    
     const element = event.target;  
     clickCount++;
-      if (clickCount === 1 && selectedWord === null) {
-        selectedWord = element;
-        selectedWord.classList.add('correct');
-      } else if ( clickCount === 2 && dictionary[element.textContent] === selectedWord.textContent) {
-          element.classList.add('correct');
-          element.classList.add('fade-out');
-          selectedWord.classList.add('fade-out');
-          clickCount = 0;
-          selectedWord = null;
-      } else if (clickCount === 2 && dictionary[element.textContent] !== selectedWord.textContent) {
-          element.classList.add('wrong');
-          setTimeout(function() {
+    if (clickCount === 1 && !selectedWord ) {
+        
+        if(!element.classList.contains('fade-out')) {
+            selectedWord = element;
+            selectedWord.classList.add('correct');
+        } else  {
+            clickCount = 0;
+            selectedWord = null;
+        }
+
+    } else if ( clickCount === 2 && dictionary[element.textContent] === selectedWord.textContent) {
+             element.classList.add('correct');
+             element.classList.add('fade-out');
+             selectedWord.classList.add('fade-out');
+             clickCount = 0;
+             selectedWord = null;
+
+             examPercent += 2 * 100 / allCards.length;
+             examProgress.value = examPercent;
+             correctPercent.textContent = `${examPercent}%`;  
+                 
+    } else if (clickCount === 2 && dictionary[element.textContent] !== selectedWord.textContent) {
+         if (!element.classList.contains('fade-out')) {
+            element.classList.add('wrong');
+            setTimeout(function() {
             element.classList.remove('wrong');
             selectedWord.classList.remove('correct');
             clickCount = 0;
             selectedWord = null;
           }, 500);   
-      } 
+         } else  {
+             clickCount = 1;
+         }
+        }
+          
+    if (examPercent === 100)  {
+      setTimeout(function() {
+            alert('Поздравляю! Ты успешно звершила этап проверки знаний!')
+      }, 1000)
+                
+    } 
+      
 })
-
 
 
